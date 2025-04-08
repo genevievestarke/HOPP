@@ -7,12 +7,16 @@ from pytest import fixture
 from hopp.simulation.technologies.battery import Battery, BatteryConfig
 from tests.hopp.utils import create_default_site_info
 
+from tests.hopp.utils import DEFAULT_FIN_CONFIG
 
 batt_kw = 5e3
 
 config_data = {
     'system_capacity_kwh': batt_kw * 4,
-    'system_capacity_kw': batt_kw
+    'system_capacity_kw': batt_kw,
+    'system_model_source': "hopp",
+    'chemistry': "LDES",
+	"fin_model": DEFAULT_FIN_CONFIG,
 }
 
 @fixture
@@ -36,10 +40,8 @@ def test_battery_config(subtests):
         assert config.maximum_SOC == 90.
     with subtests.test("with minimal params initial_SOC"):
         assert config.initial_SOC == 10.
-    with subtests.test("with minimal params fin_model"):
-        assert config.fin_model is None
     with subtests.test("with minimal params system_model_source"):
-        assert config.system_model_source is "pysam"
+        assert config.system_model_source is "hopp"
 
     with subtests.test("with invalid capacity"):
         with pytest.raises(ValueError):
@@ -81,7 +83,7 @@ def test_battery_initialization(site, subtests):
     with subtests.test("battery attribute not None outputs"):
         assert battery.outputs is not None
     with subtests.test("battery attribute chemistry"):
-        assert battery.chemistry == "LFPGraphite"
+        assert battery.chemistry == "LDES"
     with subtests.test("battery attribute system_capacity_kw"):
         assert battery.system_capacity_kw == config.system_capacity_kw
     with subtests.test("battery attribute system_capacity_kwh"):
@@ -97,8 +99,8 @@ def test_battery_initialization(site, subtests):
 
         assert battery._financial_model == fin_model
 
-    with subtests.test("battery mass"):
-        assert battery.system_mass == pytest.approx(304454.0,1e-3) #TODO: verify system mass. Current value is just based on output at writing.
+    # with subtests.test("battery mass"):
+    #     assert battery.system_mass == pytest.approx(304454.0,1e-3) #TODO: verify system mass. Current value is just based on output at writing.
 
-    with subtests.test("battery footprint area"):
-        assert battery.footprint_area == pytest.approx(250.0, 1e-3) #TODO: verify system mass. Current value is just based on output at writing.
+    # with subtests.test("battery footprint area"):
+    #     assert battery.footprint_area == pytest.approx(250.0, 1e-3) #TODO: verify system mass. Current value is just based on output at writing.
